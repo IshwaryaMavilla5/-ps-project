@@ -1,3 +1,97 @@
+kanth
+pipeline {
+    agent any
+    tools{
+        maven 'MAVEN_HOME'
+        git 'GIT_HOME'
+        jdk 'JAVA_HOME'
+    }
+    stages {
+        stage('git repo & clean') {
+            steps {
+                //bat "rmdir  /s /q mavenjava"
+                bat 'if exist JavaProject rmdir /s /q JavaProject'
+                bat "git clone https://github.com/kanthi-sree765/JavaProject"
+                bat "mvn clean -f JavaProject/pom.xml"
+            }
+        }
+        stage('install') {
+            steps {
+                bat "mvn install -f JavaProject/pom.xml"
+            }
+        }
+        stage('test') {
+            steps {
+                bat "mvn test -f JavaProject/pom.xml"
+            }
+        }
+        stage('package') {
+            steps {
+                bat "mvn package -f JavaProject/pom.xml"
+            }
+        }
+    }
+}
+lohith
+jar
+pipeline {
+    agent any
+
+    stages {
+        stage('Checkout Code') {
+            steps {
+                git 'https://github.com/lohithak28/week9maven-1.git'
+            }
+        }
+
+        stage('Build JAR') {
+            steps {
+                bat "mvn clean package"
+            }
+        }
+
+        stage('Archive JAR') {
+            steps {
+                archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+            }
+        }
+    }
+}
+war
+pipeline {
+    agent any
+
+    stages {
+
+        stage('Checkout Code') {
+            steps {
+                git 'https://github.com/lohithak28/week9maven-1.git'
+            }
+        }
+
+        stage('Build WAR') {
+            steps {
+                bat "mvn clean package"
+            }
+        }
+
+        stage('Archive WAR') {
+            steps {
+                archiveArtifacts artifacts: 'target/*.war', fingerprint: true
+            }
+        }
+
+        stage('Deploy to Tomcat') {
+            steps {
+                bat '''
+                    copy target\\*.war C:\\tomcat9\\webapps\\ /Y
+                    net stop "Tomcat9"
+                    net start "Tomcat9"
+                '''
+            }
+        }
+    }
+}
 Q II: Maven Web Application Development [30 Marks]
 Step 1: Download & Setup Project
 
